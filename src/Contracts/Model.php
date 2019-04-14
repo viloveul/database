@@ -8,13 +8,15 @@ use Viloveul\Database\Contracts\Connection;
 
 interface Model extends ArrayAccess, JsonSerializable
 {
+    const HAS_MANY = 11;
+
+    const HAS_ONE = 12;
+
     public function clearAttributes(): void;
 
     public function connection(): Connection;
 
     public function getAttributes(): array;
-
-    public function load(string $relation): void;
 
     public function relations(): array;
 
