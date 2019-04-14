@@ -12,10 +12,16 @@ class DatabaseFactory
      */
     protected static $dbman = null;
 
-    public static function instance(): IManager
+    /**
+     * @param array $connections
+     */
+    public static function instance(array $connections = []): IManager
     {
         if (!(static::$dbman instanceof IManager)) {
             static::$dbman = new Manager();
+            foreach ($connections as $key => $value) {
+                static::$dbman->addConnection($value, $key);
+            }
         }
         return static::$dbman;
     }

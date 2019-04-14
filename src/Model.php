@@ -31,8 +31,12 @@ abstract class Model implements IModel
     public static function __callStatic($method, $args)
     {
         $class = get_called_class();
-        $self = new $class();
-        return call_user_func([$self, '__call'], $method, $args);
+        return call_user_func([new $class(), '__call'], $method, $args);
+    }
+
+    public function __clone()
+    {
+        $this->clearAttributes();
     }
 
     /**
@@ -88,6 +92,24 @@ abstract class Model implements IModel
     public function getAttributes(): array
     {
         return $this->attributes;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function jsonSerialize()
+    {
+        return $this->getAttributes();
+    }
+
+    /**
+     * @param string $relation
+     */
+    public function load(string $relation): void
+    {
+        if (array_key_exists($relation, $this->relations())) {
+            $this->connection()->newQuery($this)->loadRelation($relation);
+        }
     }
 
     /**
