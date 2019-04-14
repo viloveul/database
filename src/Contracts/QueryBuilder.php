@@ -4,6 +4,7 @@ namespace Viloveul\Database\Contracts;
 
 use Closure;
 use Countable;
+use Viloveul\Database\Contracts\Model;
 use Viloveul\Database\Contracts\Collection;
 
 interface QueryBuilder extends Countable
@@ -39,6 +40,8 @@ interface QueryBuilder extends Countable
     const SEPARATOR_AND = 98;
 
     const SEPARATOR_OR = 99;
+
+    public function getModel(): Model;
 
     public function getParams(): array;
 
@@ -76,6 +79,8 @@ interface QueryBuilder extends Countable
      * @param array $columns
      */
     public function select(array $columns = []): self;
+
+    public function setModel(Model $model): void;
 
     /**
      * @param string   $column
