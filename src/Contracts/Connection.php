@@ -2,7 +2,6 @@
 
 namespace Viloveul\Database\Contracts;
 
-use Viloveul\Database\Contracts\Model;
 use Viloveul\Database\Contracts\QueryBuilder;
 
 interface Connection
@@ -12,10 +11,7 @@ interface Connection
      */
     public function compile(string $query): string;
 
-    /**
-     * @param Model $model
-     */
-    public function newQuery(Model $model): QueryBuilder;
+    public function newQuery(): QueryBuilder;
 
     /**
      * @param string $query

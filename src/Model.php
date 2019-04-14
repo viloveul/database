@@ -14,14 +14,22 @@ abstract class Model implements IModel
     private $attributes = [];
 
     /**
+     * @var mixed
+     */
+    private $query = null;
+
+    /**
      * @param  $method
      * @param  $args
      * @return mixed
      */
     public function __call($method, $args)
     {
-        $query = $this->connection()->newQuery($this);
-        return call_user_func_array([$query, $method], $args);
+        if ($this->query === null) {
+            $this->query = $this->connection()->newQuery();
+            $this->query->setModel($this);
+        }
+        return call_user_func_array([$this->query, $method], $args);
     }
 
     /**
@@ -108,7 +116,7 @@ abstract class Model implements IModel
     public function load(string $relation): void
     {
         if (array_key_exists($relation, $this->relations())) {
-            $this->connection()->newQuery($this)->loadRelation($relation);
+            $this->loadRelation($relation);
         }
     }
 
