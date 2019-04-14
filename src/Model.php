@@ -2,6 +2,7 @@
 
 namespace Viloveul\Database;
 
+use Closure;
 use Viloveul\Database\DatabaseFactory;
 use Viloveul\Database\Contracts\Model as IModel;
 use Viloveul\Database\Contracts\Connection as IConnection;
@@ -25,11 +26,7 @@ abstract class Model implements IModel
      */
     public function __call($method, $args)
     {
-        if ($this->query === null) {
-            $this->query = $this->connection()->newQuery();
-            $this->query->setModel($this);
-        }
-        return call_user_func_array([$this->query, $method], $args);
+        return $this->forwardsCall($method, $args);
     }
 
     /**
@@ -39,12 +36,13 @@ abstract class Model implements IModel
     public static function __callStatic($method, $args)
     {
         $class = get_called_class();
-        return call_user_func([new $class(), '__call'], $method, $args);
+        return call_user_func([new $class(), 'forwardsCall'], $method, $args);
     }
 
     public function __clone()
     {
         $this->clearAttributes();
+        $this->query = null;
     }
 
     /**
@@ -95,6 +93,19 @@ abstract class Model implements IModel
     }
 
     /**
+     * @param string $method
+     * @param array  $args
+     */
+    public function forwardsCall(string $method, array $args)
+    {
+        if ($this->query === null) {
+            $this->query = $this->connection()->newQuery();
+            $this->query->setModel($this);
+        }
+        return call_user_func_array([$this->query, $method], $args);
+    }
+
+    /**
      * @return mixed
      */
     public function getAttributes(): array
@@ -111,12 +122,24 @@ abstract class Model implements IModel
     }
 
     /**
-     * @param string $relation
+     * @param string  $name
+     * @param Closure $callback
      */
-    public function load(string $relation): void
+    public function load(string $name, Closure $callback = null): void
     {
-        if (array_key_exists($relation, $this->relations())) {
-            $this->loadRelation($relation);
+        [$type, $class, $pk, $fk] = $this->relations()[$name];
+        $params = array_key_exists(4, $this->relations()[$name]) ? $this->relations()[$name][4] : [];
+        $model = $class::where($fk, $this->attributes[$pk]);
+        if (array_key_exists('conditions', $params)) {
+            foreach ($params['conditions'] as $condition) {
+                $model->where(...$condition);
+            }
+        }
+        is_callable($callback) and $callback($model);
+        if ($type === static::HAS_MANY) {
+            $this->attributes[$name] = $model->getResults();
+        } else {
+            $this->attributes[$name] = $model->getResult();
         }
     }
 
@@ -133,6 +156,11 @@ abstract class Model implements IModel
      */
     public function offsetGet($key)
     {
+        if (!array_key_exists($key, $this->attributes)) {
+            if (array_key_exists($key, $this->relations())) {
+                $this->load($key);
+            }
+        }
         return array_key_exists($key, $this->attributes) ? $this->attributes[$key] : null;
     }
 

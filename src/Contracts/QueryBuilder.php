@@ -57,8 +57,6 @@ interface QueryBuilder extends Countable
      */
     public function limit(int $size, int $offset): self;
 
-    public function loadRelation(string $name): void;
-
     /**
      * @param string $column
      */
@@ -96,5 +94,5 @@ interface QueryBuilder extends Countable
      */
     public function whereGroup(Closure $callback, int $separator): self;
 
-    public function with(string $name): self;
+    public function with(string $name, Closure $callback): self;
 }
