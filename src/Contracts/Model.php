@@ -16,9 +16,21 @@ interface Model extends ArrayAccess, JsonSerializable
 
     public function connection(): Connection;
 
+    public function getAlias(): string;
+
     public function getAttributes(): array;
 
+    public function isNewRecord(): bool;
+
+    public function oldAttributes(): array;
+
+    public function primary();
+
     public function relations(): array;
+
+    public function resetState(): void;
+
+    public function setAlias(string $alias): void;
 
     /**
      * @param array $attributes
