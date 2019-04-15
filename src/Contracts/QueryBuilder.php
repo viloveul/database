@@ -6,6 +6,7 @@ use Closure;
 use Countable;
 use Viloveul\Database\Contracts\Model;
 use Viloveul\Database\Contracts\Collection;
+use Viloveul\Database\Contracts\Expression;
 
 interface QueryBuilder extends Countable
 {
@@ -51,6 +52,8 @@ interface QueryBuilder extends Countable
 
     public function getResults(): Collection;
 
+    public function groupBy(string $column): self;
+
     /**
      * @param int $size
      * @param int $offset
@@ -60,12 +63,20 @@ interface QueryBuilder extends Countable
     /**
      * @param string $column
      */
-    public function max(string $column): int;
+    public function max(string $column);
 
     /**
      * @param string $column
      */
-    public function min(string $column): int;
+    public function min(string $column);
+
+    public function orWhere(string $column, $value, int $operator): self;
+
+    public function orWhereGroup(Closure $callback): self;
+
+    public function orWhereHas(string $name, Closure $callback): self;
+
+    public function orWhereRaw(Expression $expression): self;
 
     /**
      * @param string $order
@@ -73,10 +84,7 @@ interface QueryBuilder extends Countable
      */
     public function orderBy(string $order, int $sort): self;
 
-    /**
-     * @param array $columns
-     */
-    public function select(array $columns = []): self;
+    public function select(string $column, string $alias): self;
 
     public function setModel(Model $model): void;
 
@@ -93,6 +101,10 @@ interface QueryBuilder extends Countable
      * @param int     $separator
      */
     public function whereGroup(Closure $callback, int $separator): self;
+
+    public function whereHas(string $name, Closure $callback, int $separator): self;
+
+    public function whereRaw(Expression $expression, int $separator): self;
 
     public function with(string $name, Closure $callback): self;
 }

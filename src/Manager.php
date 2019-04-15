@@ -27,6 +27,9 @@ class Manager implements IManager
      */
     public function getConnection(string $name = 'default'): IConnection
     {
+        if ($this->connections[$name]->isConnected() === false) {
+            $this->connections[$name]->connect();
+        }
         return $this->connections[$name];
     }
 }

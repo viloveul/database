@@ -10,6 +10,11 @@ use Viloveul\Database\Contracts\Connection as IConnection;
 abstract class Model implements IModel
 {
     /**
+     * @var string
+     */
+    private $aliases = 't';
+
+    /**
      * @var array
      */
     private $attributes = [];
@@ -41,8 +46,9 @@ abstract class Model implements IModel
 
     public function __clone()
     {
-        $this->clearAttributes();
         $this->query = null;
+        $this->aliases = 't';
+        $this->clearAttributes();
     }
 
     /**
@@ -108,6 +114,14 @@ abstract class Model implements IModel
     /**
      * @return mixed
      */
+    public function getAlias(): string
+    {
+        return $this->aliases;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getAttributes(): array
     {
         return $this->attributes;
@@ -161,7 +175,15 @@ abstract class Model implements IModel
                 $this->load($key);
             }
         }
-        return array_key_exists($key, $this->attributes) ? $this->attributes[$key] : null;
+        if (array_key_exists($key, $this->attributes)) {
+            $method = 'get' . ucfirst($key) . 'Attribute';
+            if (method_exists($this, $method)) {
+                return $this->{$method}();
+            } else {
+                return $this->attributes[$key];
+            }
+        }
+        return null;
     }
 
     /**
@@ -184,12 +206,20 @@ abstract class Model implements IModel
     }
 
     /**
+     * @param string $alias
+     */
+    public function setAlias(string $alias): void
+    {
+        $this->aliases = $alias;
+    }
+
+    /**
      * @param array $attributes
      */
     public function setAttributes(array $attributes): void
     {
         foreach ($attributes as $key => $value) {
-            $this->attributes[$key] = $value;
+            $this[trim($key, '`"')] = $value;
         }
     }
 }
