@@ -42,6 +42,8 @@ interface QueryBuilder extends Countable
 
     const SEPARATOR_OR = 99;
 
+    public function delete();
+
     public function getModel(): Model;
 
     public function getParams(): array;
@@ -83,6 +85,8 @@ interface QueryBuilder extends Countable
      * @param int    $sort
      */
     public function orderBy(string $order, int $sort): self;
+
+    public function save();
 
     public function select(string $column, string $alias): self;
 
