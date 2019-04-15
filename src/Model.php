@@ -12,12 +12,22 @@ abstract class Model implements IModel
     /**
      * @var string
      */
-    private $aliases = 't';
+    private $alias = 'tbl';
 
     /**
      * @var array
      */
     private $attributes = [];
+
+    /**
+     * @var mixed
+     */
+    private $newRecord = true;
+
+    /**
+     * @var array
+     */
+    private $origins = [];
 
     /**
      * @var mixed
@@ -46,9 +56,7 @@ abstract class Model implements IModel
 
     public function __clone()
     {
-        $this->query = null;
-        $this->aliases = 't';
-        $this->clearAttributes();
+        $this->resetState();
     }
 
     /**
@@ -88,8 +96,13 @@ abstract class Model implements IModel
 
     public function clearAttributes(): void
     {
-        foreach ($this->attributes as $key => $value) {
-            unset($this->attributes[$key]);
+        foreach ($this->getAttributes() as $key => $value) {
+            if (array_key_exists($key, $this->attributes)) {
+                unset($this->attributes[$key]);
+            }
+            if (array_key_exists($key, $this->origins)) {
+                unset($this->origins[$key]);
+            }
         }
     }
 
@@ -108,7 +121,7 @@ abstract class Model implements IModel
             $this->query = $this->connection()->newQuery();
             $this->query->setModel($this);
         }
-        return call_user_func_array([$this->query, $method], $args);
+        return $this->query->{$method}(...$args);
     }
 
     /**
@@ -116,7 +129,7 @@ abstract class Model implements IModel
      */
     public function getAlias(): string
     {
-        return $this->aliases;
+        return $this->alias;
     }
 
     /**
@@ -124,7 +137,15 @@ abstract class Model implements IModel
      */
     public function getAttributes(): array
     {
-        return $this->attributes;
+        return array_merge($this->origins, $this->attributes);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function isNewRecord(): bool
+    {
+        return $this->newRecord !== false;
     }
 
     /**
@@ -192,6 +213,11 @@ abstract class Model implements IModel
      */
     public function offsetSet($key, $value)
     {
+        if (array_key_exists($key, $this->attributes) && !array_key_exists($key, $this->origins)) {
+            $this->origins[$key] = $this->attributes[$key];
+        } elseif (!array_key_exists($key, $this->origins)) {
+            $this->origins[$key] = $value;
+        }
         $this->attributes[$key] = $value;
     }
 
@@ -206,11 +232,37 @@ abstract class Model implements IModel
     }
 
     /**
+     * @return mixed
+     */
+    public function oldAttributes(): array
+    {
+        return $this->origins;
+    }
+
+    public function primary()
+    {
+        return 'id';
+    }
+
+    public function relations(): array
+    {
+        return [];
+    }
+
+    public function resetState(): void
+    {
+        $this->query = null;
+        $this->alias = 'tbl';
+        $this->newRecord = false;
+        $this->clearAttributes();
+    }
+
+    /**
      * @param string $alias
      */
     public function setAlias(string $alias): void
     {
-        $this->aliases = $alias;
+        $this->alias = $alias;
     }
 
     /**
