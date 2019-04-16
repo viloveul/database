@@ -62,6 +62,8 @@ interface QueryBuilder extends Countable
      */
     public function limit(int $size, int $offset): self;
 
+    public function load(string $name, Closure $callback): void;
+
     /**
      * @param string $column
      */

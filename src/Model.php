@@ -2,9 +2,9 @@
 
 namespace Viloveul\Database;
 
-use Closure;
 use Viloveul\Database\DatabaseFactory;
 use Viloveul\Database\Contracts\Model as IModel;
+use Viloveul\Database\Contracts\Collection as ICollection;
 use Viloveul\Database\Contracts\Connection as IConnection;
 
 abstract class Model implements IModel
@@ -57,6 +57,7 @@ abstract class Model implements IModel
     public function __clone()
     {
         $this->resetState();
+        $this->clearAttributes();
     }
 
     /**
@@ -157,28 +158,6 @@ abstract class Model implements IModel
     }
 
     /**
-     * @param string  $name
-     * @param Closure $callback
-     */
-    public function load(string $name, Closure $callback = null): void
-    {
-        [$type, $class, $pk, $fk] = $this->relations()[$name];
-        $params = array_key_exists(4, $this->relations()[$name]) ? $this->relations()[$name][4] : [];
-        $model = $class::where($fk, $this->attributes[$pk]);
-        if (array_key_exists('conditions', $params)) {
-            foreach ($params['conditions'] as $condition) {
-                $model->where(...$condition);
-            }
-        }
-        is_callable($callback) and $callback($model);
-        if ($type === static::HAS_MANY) {
-            $this->attributes[$name] = $model->getResults();
-        } else {
-            $this->attributes[$name] = $model->getResult();
-        }
-    }
-
-    /**
      * @param $key
      */
     public function offsetExists($key)
@@ -193,7 +172,7 @@ abstract class Model implements IModel
     {
         if (!array_key_exists($key, $this->attributes)) {
             if (array_key_exists($key, $this->relations())) {
-                $this->load($key);
+                $this->forwardsCall('load', [$key]);
             }
         }
         if (array_key_exists($key, $this->attributes)) {
@@ -213,10 +192,12 @@ abstract class Model implements IModel
      */
     public function offsetSet($key, $value)
     {
-        if (array_key_exists($key, $this->attributes) && !array_key_exists($key, $this->origins)) {
-            $this->origins[$key] = $this->attributes[$key];
-        } elseif (!array_key_exists($key, $this->origins)) {
-            $this->origins[$key] = $value;
+        if (!($value instanceof IModel) && !($value instanceof ICollection)) {
+            if (array_key_exists($key, $this->attributes) && !array_key_exists($key, $this->origins)) {
+                $this->origins[$key] = $this->attributes[$key];
+            } elseif (!array_key_exists($key, $this->origins)) {
+                $this->origins[$key] = $value;
+            }
         }
         $this->attributes[$key] = $value;
     }
@@ -254,7 +235,6 @@ abstract class Model implements IModel
         $this->query = null;
         $this->alias = 'tbl';
         $this->newRecord = false;
-        $this->clearAttributes();
     }
 
     /**
