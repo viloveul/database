@@ -37,5 +37,10 @@ interface Connection
 
     public function rollback(): bool;
 
+    /**
+     * @return mixed
+     */
+    public function showLogQueries(): array;
+
     public function transaction(): bool;
 }

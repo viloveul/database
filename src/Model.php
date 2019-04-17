@@ -17,6 +17,11 @@ abstract class Model implements IModel
     /**
      * @var array
      */
+    private $attributeCounts = [];
+
+    /**
+     * @var array
+     */
     private $attributes = [];
 
     /**
@@ -58,6 +63,17 @@ abstract class Model implements IModel
     {
         $this->resetState();
         $this->clearAttributes();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function __construct()
+    {
+        $relationKeys = array_keys($this->relations());
+        $this->attributeCounts = array_map(function ($attr) {
+            return $attr . '_count';
+        }, $relationKeys);
     }
 
     /**
@@ -142,6 +158,14 @@ abstract class Model implements IModel
     }
 
     /**
+     * @param string $key
+     */
+    public function isAttributeCount(string $key): bool
+    {
+        return in_array($key, $this->attributeCounts);
+    }
+
+    /**
      * @return mixed
      */
     public function isNewRecord(): bool
@@ -193,10 +217,12 @@ abstract class Model implements IModel
     public function offsetSet($key, $value)
     {
         if (!($value instanceof IModel) && !($value instanceof ICollection)) {
-            if (array_key_exists($key, $this->attributes) && !array_key_exists($key, $this->origins)) {
-                $this->origins[$key] = $this->attributes[$key];
-            } elseif (!array_key_exists($key, $this->origins)) {
-                $this->origins[$key] = $value;
+            if (!$this->isAttributeCount($key)) {
+                if (array_key_exists($key, $this->attributes) && !array_key_exists($key, $this->origins)) {
+                    $this->origins[$key] = $this->attributes[$key];
+                } elseif (!array_key_exists($key, $this->origins)) {
+                    $this->origins[$key] = $value;
+                }
             }
         }
         $this->attributes[$key] = $value;
@@ -253,5 +279,18 @@ abstract class Model implements IModel
         foreach ($attributes as $key => $value) {
             $this[trim($key, '`"')] = $value;
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function toArray(): array
+    {
+        return array_map(function ($v) {
+            if (($v instanceof ICollection) || ($v instanceof IModel)) {
+                return $v->toArray();
+            }
+            return $v;
+        }, $this->getAttributes());
     }
 }

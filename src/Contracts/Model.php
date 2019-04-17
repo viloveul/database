@@ -20,6 +20,8 @@ interface Model extends ArrayAccess, JsonSerializable
 
     public function getAttributes(): array;
 
+    public function isAttributeCount(string $key): bool;
+
     public function isNewRecord(): bool;
 
     public function oldAttributes(): array;
@@ -38,4 +40,6 @@ interface Model extends ArrayAccess, JsonSerializable
     public function setAttributes(array $attributes): void;
 
     public function table(): string;
+
+    public function toArray(): array;
 }

@@ -128,6 +128,8 @@ class Collection implements ICollection
      */
     public function toArray(): array
     {
-        return $this->all();
+        return array_map(function (IModel $model) {
+            return $model->toArray();
+        }, $this->all());
     }
 }
