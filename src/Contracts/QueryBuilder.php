@@ -10,6 +10,10 @@ use Viloveul\Database\Contracts\Expression;
 
 interface QueryBuilder extends Countable
 {
+    const CONDITION_HAVING = 11;
+
+    const CONDITION_WHERE = 12;
+
     const OPERATOR_BEETWEN = 21;
 
     const OPERATOR_EQUAL = 22;
@@ -22,17 +26,13 @@ interface QueryBuilder extends Countable
 
     const OPERATOR_LIKE = 26;
 
-    const OPERATOR_LLIKE = 27;
+    const OPERATOR_LT = 27;
 
-    const OPERATOR_LT = 28;
+    const OPERATOR_LTE = 28;
 
-    const OPERATOR_LTE = 29;
+    const OPERATOR_NOT_IN = 29;
 
-    const OPERATOR_NOT_IN = 30;
-
-    const OPERATOR_RANGE = 31;
-
-    const OPERATOR_RLIKE = 32;
+    const OPERATOR_RANGE = 30;
 
     const ORDER_ASC = 77;
 
@@ -41,6 +41,11 @@ interface QueryBuilder extends Countable
     const SEPARATOR_AND = 98;
 
     const SEPARATOR_OR = 99;
+
+    /**
+     * @param $value
+     */
+    public function addParam($value): string;
 
     public function delete();
 
@@ -74,19 +79,20 @@ interface QueryBuilder extends Countable
      */
     public function min(string $column);
 
-    public function orWhere(string $column, $value, int $operator): self;
-
-    public function orWhereGroup(Closure $callback): self;
+    public function orWhere($expression, int $operator): self;
 
     public function orWhereHas(string $name, Closure $callback): self;
-
-    public function orWhereRaw(Expression $expression): self;
 
     /**
      * @param string $order
      * @param int    $sort
      */
     public function orderBy(string $order, int $sort): self;
+
+    /**
+     * @param string $identifier
+     */
+    public function quote(string $identifier): string;
 
     public function save();
 
@@ -95,22 +101,13 @@ interface QueryBuilder extends Countable
     public function setModel(Model $model): void;
 
     /**
-     * @param string   $column
-     * @param $value
-     * @param int      $operator
-     * @param int      $separator
+     * @param $expression
+     * @param int           $operator
+     * @param int           $separator
      */
-    public function where(string $column, $value, int $operator, int $separator): self;
-
-    /**
-     * @param Closure $callback
-     * @param int     $separator
-     */
-    public function whereGroup(Closure $callback, int $separator): self;
+    public function where($expression, int $operator, int $separator): self;
 
     public function whereHas(string $name, Closure $callback, int $separator): self;
-
-    public function whereRaw(Expression $expression, int $separator): self;
 
     public function with(string $name, Closure $callback): self;
 }

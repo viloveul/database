@@ -29,7 +29,7 @@ class Expression implements IExpression
     {
         if (preg_match('~(.+)\s?(beetwen|\=|\<\=?|\>\=?|like|not\sin|in)\s?(.+)~i', $expression, $match)) {
             $this->left = trim($match[1]);
-            $this->op = trim($match[2]);
+            $this->op = strtoupper(trim($match[2]));
             $this->right = trim($match[3]);
         } else {
             throw new InvalidArgumentException('Expression cannot passed.');
