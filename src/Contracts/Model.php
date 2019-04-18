@@ -12,6 +12,14 @@ interface Model extends ArrayAccess, JsonSerializable
 
     const HAS_ONE = 12;
 
+    public function afterFind(): void;
+
+    public function afterSave(): void;
+
+    public function beforeFind(): void;
+
+    public function beforeSave(): void;
+
     public function clearAttributes(): void;
 
     public function connection(): Connection;

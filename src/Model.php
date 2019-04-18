@@ -10,6 +10,11 @@ use Viloveul\Database\Contracts\Connection as IConnection;
 abstract class Model implements IModel
 {
     /**
+     * @var array
+     */
+    protected $protects = [];
+
+    /**
      * @var string
      */
     private $alias = 'tbl';
@@ -111,6 +116,26 @@ abstract class Model implements IModel
         $this->offsetUnset($key);
     }
 
+    public function afterFind(): void
+    {
+        // keep silence
+    }
+
+    public function afterSave(): void
+    {
+        // keep silence
+    }
+
+    public function beforeFind(): void
+    {
+        // keep silence
+    }
+
+    public function beforeSave(): void
+    {
+        // keep silence
+    }
+
     public function clearAttributes(): void
     {
         foreach ($this->getAttributes() as $key => $value) {
@@ -178,7 +203,9 @@ abstract class Model implements IModel
      */
     public function jsonSerialize()
     {
-        return $this->getAttributes();
+        return array_filter($this->getAttributes(), function ($k) {
+            return !in_array($k, $this->protects);
+        }, ARRAY_FILTER_USE_KEY);
     }
 
     /**
