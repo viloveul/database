@@ -82,7 +82,9 @@ class Collection implements ICollection
      */
     public function jsonSerialize()
     {
-        return $this->toArray();
+        return array_map(function (IModel $model) {
+            return $model->jsonSerialize();
+        }, $this->all());
     }
 
     /**
@@ -116,6 +118,7 @@ class Collection implements ICollection
                         ]);
                     }
                 }
+                $new->afterFind();
                 $this->results[$index] = $new;
             }
             return $this->results[$index];
