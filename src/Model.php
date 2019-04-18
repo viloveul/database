@@ -208,6 +208,11 @@ abstract class Model implements IModel
         }, ARRAY_FILTER_USE_KEY);
     }
 
+    public function newInstance(): IModel
+    {
+        return new static();
+    }
+
     /**
      * @param $key
      */
