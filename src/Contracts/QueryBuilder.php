@@ -57,6 +57,8 @@ interface QueryBuilder extends Countable
 
     public function getResult();
 
+    public function getResultOrCreate(array $conditions, array $attributes): Model;
+
     public function getResults(): Collection;
 
     public function groupBy(string $column): self;
@@ -88,11 +90,6 @@ interface QueryBuilder extends Countable
      * @param int    $sort
      */
     public function orderBy(string $order, int $sort): self;
-
-    /**
-     * @param string $identifier
-     */
-    public function quote(string $identifier): string;
 
     public function save();
 
