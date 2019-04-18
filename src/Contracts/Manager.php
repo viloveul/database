@@ -16,4 +16,6 @@ interface Manager
      * @param string $name
      */
     public function getConnection(string $name = 'default'): Connection;
+
+    public function load(): void;
 }
