@@ -48,6 +48,8 @@ interface Schema
 
     const TYPE_YEAR = 52;
 
+    function default($v): self;
+
     /**
      * @param string $name
      */
@@ -68,6 +70,4 @@ interface Schema
     public function unique(string $column): self;
 
     public function unsigned(): self;
-
-    public function value($v): self;
 }
