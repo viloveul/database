@@ -61,7 +61,7 @@ interface Schema
 
     public function nullable(): self;
 
-    public function primary(): self;
+    public function primary(string $column): self;
 
     public function run();
 
