@@ -48,6 +48,11 @@ interface Schema
 
     const TYPE_YEAR = 52;
 
+    /**
+     * @param string $name
+     */
+    public function hasColumn(string $name): bool;
+
     public function increment(): self;
 
     public function index(string $column): self;

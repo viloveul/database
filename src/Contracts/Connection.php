@@ -46,6 +46,8 @@ interface Connection
      */
     public function prepare(string $query): string;
 
+    public function quote(string $identifier): string;
+
     public function rollback(): bool;
 
     /**
