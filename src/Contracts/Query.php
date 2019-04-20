@@ -93,7 +93,7 @@ interface Query extends Countable
 
     public function save();
 
-    public function select(string $column, string $alias): self;
+    public function select($column, string $alias): self;
 
     public function setModel(Model $model): void;
 
