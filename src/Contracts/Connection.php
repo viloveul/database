@@ -2,10 +2,10 @@
 
 namespace Viloveul\Database\Contracts;
 
+use Viloveul\Database\Contracts\Query;
 use Viloveul\Database\Contracts\Schema;
 use Viloveul\Database\Contracts\Compiler;
 use Viloveul\Database\Contracts\Condition;
-use Viloveul\Database\Contracts\QueryBuilder;
 
 interface Connection
 {
@@ -25,7 +25,7 @@ interface Connection
 
     public function getDbName(): string;
 
-    public function getDbPort(): string;
+    public function getDbPort(): int;
 
     public function getPrefix(): string;
 
@@ -33,11 +33,11 @@ interface Connection
 
     public function isConnected(): bool;
 
-    public function newCompiler(QueryBuilder $builder): Compiler;
+    public function newCompiler(Query $builder): Compiler;
 
     public function newCondition(Compiler $compiler): Condition;
 
-    public function newQueryBuilder(): QueryBuilder;
+    public function newQuery(): Query;
 
     public function newSchema(string $name, array $options): Schema;
 

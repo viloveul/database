@@ -160,7 +160,7 @@ abstract class Model implements IModel
     public function forwardsCall(string $method, array $args)
     {
         if ($this->query === null) {
-            $this->query = $this->connection()->newQueryBuilder();
+            $this->query = $this->connection()->newQuery();
             $this->query->setModel($this);
         }
         return $this->query->{$method}(...$args);

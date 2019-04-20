@@ -5,10 +5,11 @@ namespace Viloveul\Database\Contracts;
 use Closure;
 use Countable;
 use Viloveul\Database\Contracts\Model;
+use Viloveul\Database\Contracts\Compiler;
 use Viloveul\Database\Contracts\Collection;
 use Viloveul\Database\Contracts\Expression;
 
-interface QueryBuilder extends Countable
+interface Query extends Countable
 {
     const CONDITION_HAVING = 11;
 
@@ -42,12 +43,9 @@ interface QueryBuilder extends Countable
 
     const SEPARATOR_OR = 99;
 
-    /**
-     * @param $value
-     */
-    public function addParam($value): string;
-
     public function delete();
+
+    public function getCompiler(): Compiler;
 
     public function getModel(): Model;
 
@@ -62,6 +60,8 @@ interface QueryBuilder extends Countable
     public function getResults(): Collection;
 
     public function groupBy(string $column): self;
+
+    public function join(string $name, array $condition, string $joinType, array $throughs): self;
 
     /**
      * @param int $size
@@ -96,6 +96,8 @@ interface QueryBuilder extends Countable
     public function select(string $column, string $alias): self;
 
     public function setModel(Model $model): void;
+
+    public function throughConditions(): array;
 
     /**
      * @param $expression
