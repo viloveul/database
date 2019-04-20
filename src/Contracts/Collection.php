@@ -11,6 +11,8 @@ interface Collection extends IteratorAggregate, JsonSerializable, Countable
 {
     public function all(): array;
 
+    public function convertList(string $key, string $value): array;
+
     public function filter(Closure $callback): self;
 
     public function one(int $index);
