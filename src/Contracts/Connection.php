@@ -33,9 +33,9 @@ interface Connection
 
     public function isConnected(): bool;
 
-    public function newCompiler(Query $builder): Compiler;
+    public function newCompiler(Query $query): Compiler;
 
-    public function newCondition(Compiler $compiler): Condition;
+    public function newCondition(Query $query): Condition;
 
     public function newQuery(): Query;
 

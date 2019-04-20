@@ -2,27 +2,27 @@
 
 namespace Viloveul\Database;
 
-use Viloveul\Database\Contracts\Compiler as ICompiler;
+use Viloveul\Database\Contracts\Query as IQuery;
 use Viloveul\Database\Contracts\Condition as ICondition;
 
 abstract class Condition implements ICondition
 {
-    /**
-     * @var mixed
-     */
-    protected $compiler;
-
     /**
      * @var array
      */
     protected $conditions = [];
 
     /**
-     * @param ICompiler $compiler
+     * @var mixed
      */
-    public function __construct(ICompiler $compiler)
+    protected $query;
+
+    /**
+     * @param IQuery $query
+     */
+    public function __construct(IQuery $query)
     {
-        $this->compiler = $compiler;
+        $this->query = $query;
     }
 
     /**

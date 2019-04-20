@@ -42,11 +42,6 @@ abstract class Query implements IQuery
     protected $model;
 
     /**
-     * @var array
-     */
-    protected $relations = [];
-
-    /**
      * @var mixed
      */
     protected $whereCondition;
@@ -57,14 +52,19 @@ abstract class Query implements IQuery
     protected $withCounts = [];
 
     /**
+     * @var array
+     */
+    protected $withRelations = [];
+
+    /**
      * @param IConnection $connection
      */
     public function __construct(IConnection $connection)
     {
         $this->connection = $connection;
         $this->compiler = $connection->newCompiler($this);
-        $this->whereCondition = $connection->newCondition($this->compiler);
-        $this->havingCondition = $connection->newCondition($this->compiler);
+        $this->whereCondition = $connection->newCondition($this);
+        $this->havingCondition = $connection->newCondition($this);
     }
 
     public function __destruct()
@@ -78,9 +78,15 @@ abstract class Query implements IQuery
     }
 
     /**
-     * @param $value
+     * @param  $value
+     * @return mixed
      */
-    abstract public function addParam($value): string;
+    public function addParam($value): string
+    {
+        $key = ':bind_' . $this->getModel()->getAlias() . '_' . count($this->bindParams);
+        $this->bindParams[$key] = $value;
+        return $key;
+    }
 
     /**
      * @return mixed
@@ -148,7 +154,6 @@ abstract class Query implements IQuery
     public function setModel(IModel $model): void
     {
         $this->model = $model;
-        $this->modelRelations = $model->relations();
     }
 
     /**
@@ -166,7 +171,7 @@ abstract class Query implements IQuery
      */
     public function with(string $name, Closure $callback = null): IQuery
     {
-        $this->relations[$name] = $callback === null ? $name : $callback;
+        $this->withRelations[$name] = $callback === null ? $name : $callback;
         return $this;
     }
 
