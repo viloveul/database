@@ -49,6 +49,20 @@ class Collection implements ICollection
         }, $keys);
     }
 
+    /**
+     * @param  string  $key
+     * @param  string  $value
+     * @return mixed
+     */
+    public function convertList(string $key, string $value): array
+    {
+        $lists = [];
+        foreach ($this->results as $result) {
+            $lists[$result[$key]] = $result[$value];
+        }
+        return $lists;
+    }
+
     public function count(): int
     {
         return count($this->results);
