@@ -35,13 +35,19 @@ interface Query extends Countable
 
     const OPERATOR_RANGE = 30;
 
-    const ORDER_ASC = 77;
-
-    const ORDER_DESC = 78;
-
     const SEPARATOR_AND = 98;
 
     const SEPARATOR_OR = 99;
+
+    const SORT_ASC = 100;
+
+    const SORT_DESC = 101;
+
+    const SYNC_ATTACH = 201;
+
+    const SYNC_BOTH = 202;
+
+    const SYNC_DETACH = 203;
 
     public function count(): int;
 
@@ -112,6 +118,8 @@ interface Query extends Countable
     public function setConnection(Connection $connection): void;
 
     public function setModel(Model $model): void;
+
+    public function sync(string $name, array $values, int $mode): void;
 
     public function throughConditions(): array;
 
