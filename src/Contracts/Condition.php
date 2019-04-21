@@ -2,6 +2,8 @@
 
 namespace Viloveul\Database\Contracts;
 
+use Viloveul\Database\Contracts\Query;
+
 interface Condition
 {
     /**
@@ -15,5 +17,11 @@ interface Condition
 
     public function clear(): void;
 
+    public function getCompiled(): string;
+
+    public function getQuery(): Query;
+
     public function push(array $condition): void;
+
+    public function setQuery(Query $query);
 }

@@ -12,11 +12,6 @@ abstract class Connection implements IConnection
     protected $host;
 
     /**
-     * @var array
-     */
-    protected $logs = [];
-
-    /**
      * @var mixed
      */
     protected $name = '';
@@ -30,6 +25,20 @@ abstract class Connection implements IConnection
      * @var mixed
      */
     protected $prefix = '';
+
+    /**
+     * @var array
+     */
+    private $logs = [];
+
+    /**
+     * @param string $query
+     * @param array  $params
+     */
+    public function addLogQuery(string $query, array $params = []): void
+    {
+        $this->logs[] = compact('query', 'params');
+    }
 
     /**
      * @return mixed

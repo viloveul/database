@@ -32,7 +32,7 @@ interface Model extends ArrayAccess, JsonSerializable
 
     public function isNewRecord(): bool;
 
-    public function newInstance(): self;
+    public static function newInstance(): self;
 
     public function oldAttributes(): array;
 
