@@ -122,38 +122,6 @@ abstract class Query implements IQuery
         $this->havingCondition = $this->newCondition();
     }
 
-    /**
-     * @param  array   $columns
-     * @return mixed
-     */
-    public function multipleSelect(array $columns): IQuery
-    {
-        foreach ($columns as $key => $value) {
-            if (is_numeric($key)) {
-                $this->select($value);
-            } else {
-                $this->select($value, $key);
-            }
-        }
-        return $this;
-    }
-
-    /**
-     * @param  array   $relations
-     * @return mixed
-     */
-    public function multipleWith(array $relations): IQuery
-    {
-        foreach ($relations as $key => $value) {
-            if (is_callable($value)) {
-                $this->with($key, $value);
-            } else {
-                $this->with($value);
-            }
-        }
-        return $this;
-    }
-
     abstract public function newCondition(): ICondition;
 
     public function setConnection(IConnection $connection): void
@@ -170,13 +138,23 @@ abstract class Query implements IQuery
     }
 
     /**
-     * @param  string  $name
+     * @param  $name
      * @param  Closure $callback
      * @return mixed
      */
-    public function with(string $name, Closure $callback = null): IQuery
+    public function with($name, Closure $callback = null): IQuery
     {
-        $this->withRelations[$name] = $callback === null ? $name : $callback;
+        if (!is_scalar($name)) {
+            foreach ($name as $key => $value) {
+                if (is_callable($value)) {
+                    $this->with($key, $value);
+                } else {
+                    $this->with($value);
+                }
+            }
+        } else {
+            $this->withRelations[$name] = $callback === null ? $name : $callback;
+        }
         return $this;
     }
 

@@ -99,10 +99,6 @@ interface Query extends Countable
 
     public function min(string $column);
 
-    public function multipleSelect(array $columns): Query;
-
-    public function multipleWith(array $relations): Query;
-
     public function orWhere($expression, int $operator): Query;
 
     public function orWhereHas(string $relation, Closure $callback): Query;
@@ -113,7 +109,7 @@ interface Query extends Countable
 
     public function save(): Model;
 
-    public function select(string $column, string $alias): Query;
+    public function select($column, string $alias): Query;
 
     public function setConnection(Connection $connection): void;
 
@@ -127,7 +123,7 @@ interface Query extends Countable
 
     public function whereHas(string $name, Closure $callback, int $separator): Query;
 
-    public function with(string $name, Closure $callback): Query;
+    public function with($name, Closure $callback): Query;
 
     public function withCount(string $name, Closure $callback): Query;
 }
