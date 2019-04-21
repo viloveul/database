@@ -60,8 +60,7 @@ abstract class Model implements IModel
      */
     public static function __callStatic($method, $args)
     {
-        $class = get_called_class();
-        return call_user_func([new $class(), 'forwardsCall'], $method, $args);
+        return call_user_func([static::newInstance(), 'forwardsCall'], $method, $args);
     }
 
     public function __clone()
@@ -208,7 +207,7 @@ abstract class Model implements IModel
         }, ARRAY_FILTER_USE_KEY);
     }
 
-    public function newInstance(): IModel
+    public static function newInstance(): IModel
     {
         return new static();
     }

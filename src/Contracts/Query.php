@@ -5,9 +5,9 @@ namespace Viloveul\Database\Contracts;
 use Closure;
 use Countable;
 use Viloveul\Database\Contracts\Model;
-use Viloveul\Database\Contracts\Compiler;
+use Viloveul\Database\Contracts\Query;
 use Viloveul\Database\Contracts\Collection;
-use Viloveul\Database\Contracts\Expression;
+use Viloveul\Database\Contracts\Connection;
 
 interface Query extends Countable
 {
@@ -43,70 +43,83 @@ interface Query extends Countable
 
     const SEPARATOR_OR = 99;
 
+    public function count(): int;
+
     public function delete();
 
-    public function getCompiler(): Compiler;
+    public function getCompiledGroupBy(): string;
+
+    public function getCompiledHaving(): string;
+
+    public function getCompiledOrderBy(): string;
+
+    public function getCompiledSelect(): string;
+
+    public function getCompiledTable(): string;
+
+    public function getCompiledWhere(): string;
+
+    public function getConnection(): Connection;
 
     public function getModel(): Model;
 
     public function getParams(): array;
 
-    public function getQuery(): string;
+    public function getQuery(bool $compile): string;
 
     public function getResult();
 
     public function getResultOrCreate(array $conditions, array $attributes): Model;
 
+    public function getResultOrInstance(array $conditions, array $attributes): Model;
+
     public function getResults(): Collection;
 
-    public function groupBy(string $column): self;
+    public function getValue(string $column, $default);
 
-    public function join(string $name, array $condition, string $joinType, array $throughs): self;
+    public function groupBy(string $column): Query;
 
-    /**
-     * @param int $size
-     * @param int $offset
-     */
-    public function limit(int $size, int $offset): self;
+    public function having($expression, int $operator, int $separator): Query;
+
+    public function initialize(): void;
+
+    public function join(string $name, array $conditions, string $joinType, array $throughs): Query;
+
+    public function limit(int $size, int $offset): Query;
 
     public function load(string $name, Closure $callback): void;
 
-    /**
-     * @param string $column
-     */
     public function max(string $column);
 
-    /**
-     * @param string $column
-     */
     public function min(string $column);
 
-    public function orWhere($expression, int $operator): self;
+    public function multipleSelect(array $columns): Query;
 
-    public function orWhereHas(string $name, Closure $callback): self;
+    public function multipleWith(array $relations): Query;
 
-    /**
-     * @param string $order
-     * @param int    $sort
-     */
-    public function orderBy(string $order, int $sort): self;
+    public function orWhere($expression, int $operator): Query;
 
-    public function save();
+    public function orWhereHas(string $relation, Closure $callback): Query;
 
-    public function select($column, string $alias): self;
+    public function orderBy(string $column, int $sort): Query;
+
+    public function parseRelations(string $name, array $relations): array;
+
+    public function save(): Model;
+
+    public function select(string $column, string $alias): Query;
+
+    public function setConnection(Connection $connection): void;
 
     public function setModel(Model $model): void;
 
     public function throughConditions(): array;
 
-    /**
-     * @param $expression
-     * @param int           $operator
-     * @param int           $separator
-     */
-    public function where($expression, int $operator, int $separator): self;
+    public function where($expression, int $operator, int $separator): Query;
 
-    public function whereHas(string $name, Closure $callback, int $separator): self;
+    public function whereHas(string $name, Closure $callback, int $separator): Query;
 
-    public function with(string $name, Closure $callback): self;
+    public function with(string $name, Closure $callback): Query;
+
+    public function withCount(string $name, Closure $callback): Query;
 }

@@ -15,14 +15,11 @@ abstract class Condition implements ICondition
     /**
      * @var mixed
      */
-    protected $query;
+    private $query;
 
-    /**
-     * @param IQuery $query
-     */
-    public function __construct(IQuery $query)
+    public function __destruct()
     {
-        $this->query = $query;
+        $this->clear();
     }
 
     /**
@@ -43,10 +40,26 @@ abstract class Condition implements ICondition
     }
 
     /**
+     * @return mixed
+     */
+    public function getQuery(): IQuery
+    {
+        return $this->query;
+    }
+
+    /**
      * @param array $condition
      */
     public function push(array $condition): void
     {
         $this->conditions[] = $condition;
+    }
+
+    /**
+     * @param IQuery $query
+     */
+    public function setQuery(IQuery $query)
+    {
+        $this->query = $query;
     }
 }

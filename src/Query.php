@@ -5,7 +5,6 @@ namespace Viloveul\Database;
 use Closure;
 use Viloveul\Database\Contracts\Model as IModel;
 use Viloveul\Database\Contracts\Query as IQuery;
-use Viloveul\Database\Contracts\Compiler as ICompiler;
 use Viloveul\Database\Contracts\Condition as ICondition;
 use Viloveul\Database\Contracts\Connection as IConnection;
 
@@ -19,27 +18,7 @@ abstract class Query implements IQuery
     /**
      * @var mixed
      */
-    protected $compiler;
-
-    /**
-     * @var mixed
-     */
-    protected $connection;
-
-    /**
-     * @var mixed
-     */
     protected $havingCondition;
-
-    /**
-     * @var array
-     */
-    protected $mapThroughConditions = [];
-
-    /**
-     * @var mixed
-     */
-    protected $model;
 
     /**
      * @var mixed
@@ -57,43 +36,36 @@ abstract class Query implements IQuery
     protected $withRelations = [];
 
     /**
-     * @param IConnection $connection
+     * @var mixed
      */
-    public function __construct(IConnection $connection)
-    {
-        $this->connection = $connection;
-        $this->compiler = $connection->newCompiler($this);
-        $this->whereCondition = $connection->newCondition($this);
-        $this->havingCondition = $connection->newCondition($this);
-    }
+    private $connection;
+
+    /**
+     * @var mixed
+     */
+    private $model;
 
     public function __destruct()
     {
-        $this->whereCondition->clear();
-        $this->havingCondition->clear();
         $this->connection = null;
-        $this->compiler = null;
         $this->whereCondition = null;
         $this->havingCondition = null;
     }
 
     /**
-     * @param  $value
      * @return mixed
      */
-    public function addParam($value): string
+    public function __toString()
     {
-        $key = ':bind_' . $this->getModel()->getAlias() . '_' . count($this->bindParams);
-        $this->bindParams[$key] = $value;
-        return $key;
+        return $this->getQuery();
     }
 
     /**
      * @return mixed
      */
-    public function getCompiler(): ICompiler
+    public function getConnection(): IConnection
     {
-        return $this->compiler;
+        return $this->connection;
     }
 
     /**
@@ -113,39 +85,80 @@ abstract class Query implements IQuery
     }
 
     /**
-     * @param string  $name
-     * @param Closure $callback
+     * @param  array   $conditions
+     * @param  array   $attributes
+     * @return mixed
      */
-    public function load(string $name, Closure $callback = null): void
+    public function getResultOrCreate(array $conditions, array $attributes = []): IModel
     {
-        if ($rel = $this->getCompiler()->parseRelations($name, $this->getModel()->relations())) {
-            [$type, $class, $through, $keys, $use] = $rel;
-            $model = new $class();
-            $model->setAlias($name);
-            if ($through !== null) {
-                $model->join($through, $keys, 'inner', $this->getModel()->relations());
-                $keys = $model->throughConditions();
-            }
-            $model->where(function (ICondition $where) use ($keys) {
-                foreach ($keys as $parent => $child) {
-                    $where->add([$child => $this->getModel()->{$parent}]);
-                }
-            });
-
-            is_callable($use) and $use($model);
-            is_callable($callback) and $callback($model);
-
-            $model->beforeFind();
-
-            if ($type === IModel::HAS_MANY) {
-                $this->getModel()->setAttributes([$name => $model->getResults()]);
-            } else {
-                $this->getModel()->setAttributes([$name => $model->getResult()]);
-            }
-
-            $model->afterFind();
+        $model = $this->getResultOrInstance($conditions, $attributes);
+        if ($model->isNewRecord()) {
+            $model->save();
         }
-        $this->getModel()->resetState();
+        return $model;
+    }
+
+    /**
+     * @param  array   $conditions
+     * @param  array   $attributes
+     * @return mixed
+     */
+    public function getResultOrInstance(array $conditions, array $attributes = []): IModel
+    {
+        $this->whereCondition->clear();
+        if ($model = $this->where($conditions)->getResult()) {
+            return $model;
+        } else {
+            $model = $this->getModel()->newInstance();
+            $model->setAttributes($attributes);
+            $model->setAttributes($conditions);
+            return $model;
+        }
+    }
+
+    public function initialize(): void
+    {
+        $this->whereCondition = $this->newCondition();
+        $this->havingCondition = $this->newCondition();
+    }
+
+    /**
+     * @param  array   $columns
+     * @return mixed
+     */
+    public function multipleSelect(array $columns): IQuery
+    {
+        foreach ($columns as $key => $value) {
+            if (is_numeric($key)) {
+                $this->select($value);
+            } else {
+                $this->select($value, $key);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param  array   $relations
+     * @return mixed
+     */
+    public function multipleWith(array $relations): IQuery
+    {
+        foreach ($relations as $key => $value) {
+            if (is_callable($value)) {
+                $this->with($key, $value);
+            } else {
+                $this->with($value);
+            }
+        }
+        return $this;
+    }
+
+    abstract public function newCondition(): ICondition;
+
+    public function setConnection(IConnection $connection): void
+    {
+        $this->connection = $connection;
     }
 
     /**
@@ -154,14 +167,6 @@ abstract class Query implements IQuery
     public function setModel(IModel $model): void
     {
         $this->model = $model;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function throughConditions(): array
-    {
-        return $this->mapThroughConditions;
     }
 
     /**
