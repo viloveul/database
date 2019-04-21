@@ -76,7 +76,7 @@ abstract class Model implements IModel
     {
         $relationKeys = array_keys($this->relations());
         $this->attributeCounts = array_map(function ($attr) {
-            return $attr . '_count';
+            return 'count_' . $attr;
         }, $relationKeys);
     }
 
@@ -145,6 +145,9 @@ abstract class Model implements IModel
                 unset($this->origins[$key]);
             }
         }
+        foreach ($this->attributeCounts as $key) {
+            $this->attributes[$key] = 0;
+        }
     }
 
     public function connection(): IConnection
@@ -178,7 +181,12 @@ abstract class Model implements IModel
      */
     public function getAttributes(): array
     {
-        return array_merge($this->origins, $this->attributes);
+        $attr = array_merge($this->origins, $this->attributes);
+        $results = [];
+        foreach ($attr as $key => $value) {
+            $results[$key] = $this->offsetGet($key);
+        }
+        return $results;
     }
 
     /**
@@ -227,7 +235,9 @@ abstract class Model implements IModel
     {
         if (!array_key_exists($key, $this->attributes)) {
             if (array_key_exists($key, $this->relations())) {
-                $this->forwardsCall('load', [$key]);
+                if (!$this->isAttributeCount($key)) {
+                    $this->forwardsCall('load', [$key]);
+                }
             }
         }
         if (array_key_exists($key, $this->attributes)) {
