@@ -119,6 +119,8 @@ interface Query extends Countable
 
     public function throughConditions(): array;
 
+    public function usingAggregate(): void;
+
     public function where($expression, int $operator, int $separator): Query;
 
     public function whereHas(string $name, Closure $callback, int $separator): Query;
