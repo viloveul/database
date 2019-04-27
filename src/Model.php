@@ -74,7 +74,10 @@ abstract class Model implements IModel
      */
     public function __construct()
     {
-        $relationKeys = array_keys($this->relations());
+        $filterRelations = array_filter($this->relations(), function ($v) {
+            return $v['type'] === static::HAS_MANY;
+        });
+        $relationKeys = array_keys($filterRelations);
         $this->attributeCounts = array_map(function ($attr) {
             return 'count_' . $attr;
         }, $relationKeys);
@@ -184,7 +187,9 @@ abstract class Model implements IModel
         $attr = array_merge($this->origins, $this->attributes);
         $results = [];
         foreach ($attr as $key => $value) {
-            $results[$key] = $this->offsetGet($key);
+            if (empty($this->protects) || !in_array($key, $this->protects)) {
+                $results[$key] = $this->offsetGet($key);
+            }
         }
         return $results;
     }
