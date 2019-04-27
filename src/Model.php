@@ -187,9 +187,7 @@ abstract class Model implements IModel
         $attr = array_merge($this->origins, $this->attributes);
         $results = [];
         foreach ($attr as $key => $value) {
-            if (empty($this->protects) || !in_array($key, $this->protects)) {
-                $results[$key] = $this->offsetGet($key);
-            }
+            $results[$key] = $this->offsetGet($key);
         }
         return $results;
     }
@@ -215,9 +213,7 @@ abstract class Model implements IModel
      */
     public function jsonSerialize()
     {
-        return array_filter($this->getAttributes(), function ($k) {
-            return !in_array($k, $this->protects);
-        }, ARRAY_FILTER_USE_KEY);
+        return $this->toArray();
     }
 
     public static function newInstance(): IModel
@@ -332,11 +328,15 @@ abstract class Model implements IModel
      */
     public function toArray(): array
     {
+        $attr = array_filter($this->getAttributes(), function ($k) {
+            return !in_array($k, $this->protects);
+        }, ARRAY_FILTER_USE_KEY);
+
         return array_map(function ($v) {
             if (($v instanceof ICollection) || ($v instanceof IModel)) {
                 return $v->toArray();
             }
             return $v;
-        }, $this->getAttributes());
+        }, $attr);
     }
 }
