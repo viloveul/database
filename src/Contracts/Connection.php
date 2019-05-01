@@ -3,6 +3,7 @@
 namespace Viloveul\Database\Contracts;
 
 use Viloveul\Database\Contracts\Query;
+use Viloveul\Database\Contracts\Result;
 use Viloveul\Database\Contracts\Schema;
 
 interface Connection
@@ -13,7 +14,7 @@ interface Connection
 
     public function disconnect(): void;
 
-    public function execute(string $query, array $params);
+    public function execute(string $query, array $params): Result;
 
     public function getDbHost(): string;
 
