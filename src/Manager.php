@@ -28,6 +28,14 @@ class Manager implements IManager
     }
 
     /**
+     * @return mixed
+     */
+    public function all(): array
+    {
+        return $this->connections;
+    }
+
+    /**
      * @param  string  $name
      * @return mixed
      */
