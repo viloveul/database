@@ -12,6 +12,8 @@ interface Manager
      */
     public function addConnection(Connection $connection, string $name = 'default'): void;
 
+    public function all(): array;
+
     /**
      * @param string $name
      */
