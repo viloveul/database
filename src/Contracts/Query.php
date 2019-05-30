@@ -73,15 +73,15 @@ interface Query extends Countable
 
     public function getQuery(bool $compile): string;
 
-    public function getResult();
+    public function find();
 
-    public function getResultOrCreate(array $conditions, array $attributes): Model;
+    public function findOrCreate(array $attributes): Model;
 
-    public function getResultOrInstance(array $conditions, array $attributes): Model;
+    public function findOrNew(array $attributes): Model;
 
-    public function getResults(): Collection;
+    public function findAll(): Collection;
 
-    public function getValue(string $column, $default);
+    public function value(string $column, $default);
 
     public function groupBy(string $column): Query;
 
