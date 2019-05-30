@@ -61,6 +61,34 @@ abstract class Query implements IQuery
     }
 
     /**
+     * @param  array   $attributes
+     * @return mixed
+     */
+    public function findOrCreate(array $attributes): IModel
+    {
+        $model = $this->findOrNew($attributes);
+        if ($model->isNewRecord()) {
+            $model->save();
+        }
+        return $model;
+    }
+
+    /**
+     * @param  array   $attributes
+     * @return mixed
+     */
+    public function findOrNew(array $attributes): IModel
+    {
+        if ($model = $this->find()) {
+            return $model;
+        } else {
+            $model = $this->getModel()->newInstance();
+            $model->setAttributes($attributes);
+            return $model;
+        }
+    }
+
+    /**
      * @return mixed
      */
     public function getConnection(): IConnection
@@ -82,38 +110,6 @@ abstract class Query implements IQuery
     public function getParams(): array
     {
         return $this->bindParams;
-    }
-
-    /**
-     * @param  array   $conditions
-     * @param  array   $attributes
-     * @return mixed
-     */
-    public function getResultOrCreate(array $conditions, array $attributes = []): IModel
-    {
-        $model = $this->getResultOrInstance($conditions, $attributes);
-        if ($model->isNewRecord()) {
-            $model->save();
-        }
-        return $model;
-    }
-
-    /**
-     * @param  array   $conditions
-     * @param  array   $attributes
-     * @return mixed
-     */
-    public function getResultOrInstance(array $conditions, array $attributes = []): IModel
-    {
-        $this->whereCondition->clear();
-        if ($model = $this->where($conditions)->getResult()) {
-            return $model;
-        } else {
-            $model = $this->getModel()->newInstance();
-            $model->setAttributes($attributes);
-            $model->setAttributes($conditions);
-            return $model;
-        }
     }
 
     public function initialize(): void
