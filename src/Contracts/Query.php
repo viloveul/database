@@ -5,16 +5,11 @@ namespace Viloveul\Database\Contracts;
 use Closure;
 use Countable;
 use Viloveul\Database\Contracts\Model;
-use Viloveul\Database\Contracts\Query;
 use Viloveul\Database\Contracts\Collection;
 use Viloveul\Database\Contracts\Connection;
 
 interface Query extends Countable
 {
-    const CONDITION_HAVING = 11;
-
-    const CONDITION_WHERE = 12;
-
     const OPERATOR_BEETWEN = 21;
 
     const OPERATOR_EQUAL = 22;
@@ -31,9 +26,13 @@ interface Query extends Countable
 
     const OPERATOR_LTE = 28;
 
-    const OPERATOR_NOT_IN = 29;
+    const OPERATOR_NOT_EQUAL = 29;
 
-    const OPERATOR_RANGE = 30;
+    const OPERATOR_NOT_IN = 30;
+
+    const OPERATOR_RANGE = 31;
+
+    const OPERATOR_RAW = 32;
 
     const SEPARATOR_AND = 98;
 
@@ -49,9 +48,23 @@ interface Query extends Countable
 
     const SYNC_DETACH = 203;
 
-    public function count(): int;
+    const VALUE_IS_EMPTY = 212;
+
+    const VALUE_IS_NULL = 213;
+
+    const VALUE_NOT_EMPTY = 214;
+
+    const VALUE_NOT_NULL = 215;
 
     public function delete();
+
+    public function find();
+
+    public function findAll(): Collection;
+
+    public function findOrCreate(array $attributes): Model;
+
+    public function findOrNew(array $attributes): Model;
 
     public function getCompiledGroupBy(): string;
 
@@ -73,16 +86,6 @@ interface Query extends Countable
 
     public function getQuery(bool $compile): string;
 
-    public function find();
-
-    public function findOrCreate(array $attributes): Model;
-
-    public function findOrNew(array $attributes): Model;
-
-    public function findAll(): Collection;
-
-    public function value(string $column, $default);
-
     public function groupBy(string $column): Query;
 
     public function having($expression, int $operator, int $separator): Query;
@@ -98,6 +101,8 @@ interface Query extends Countable
     public function max(string $column);
 
     public function min(string $column);
+
+    public function orHaving($expression, int $operator): Query;
 
     public function orWhere($expression, int $operator): Query;
 
@@ -120,6 +125,8 @@ interface Query extends Countable
     public function throughConditions(): array;
 
     public function usingAggregate(): void;
+
+    public function value(string $column, $default);
 
     public function where($expression, int $operator, int $separator): Query;
 

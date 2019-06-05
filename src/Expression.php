@@ -33,7 +33,6 @@ class Expression implements IExpression
             $this->right = trim($match[3]);
         } else {
             throw new InvalidArgumentException('Expression cannot passed.');
-
         }
     }
 
