@@ -86,7 +86,7 @@ interface Query extends Countable
 
     public function getQuery(bool $compile): string;
 
-    public function groupBy(string $column): Query;
+    public function group(string $column): Query;
 
     public function having($expression, int $operator, int $separator): Query;
 
@@ -108,7 +108,7 @@ interface Query extends Countable
 
     public function orWhereHas(string $relation, Closure $callback): Query;
 
-    public function orderBy(string $column, int $sort): Query;
+    public function order(string $column, int $sort): Query;
 
     public function parseRelations(string $name, array $relations): array;
 
