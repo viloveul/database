@@ -34,6 +34,8 @@ interface Query extends Countable
 
     const OPERATOR_RAW = 32;
 
+    const RANDOM_ORDER = '[[RANDOM]]';
+
     const SEPARATOR_AND = 98;
 
     const SEPARATOR_OR = 99;
@@ -63,6 +65,8 @@ interface Query extends Countable
     public function findAll(): Collection;
 
     public function findOrCreate(array $attributes): Model;
+
+    public function findOrFail();
 
     public function findOrNew(array $attributes): Model;
 
