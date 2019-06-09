@@ -3,6 +3,7 @@
 namespace Viloveul\Database;
 
 use Closure;
+use Viloveul\Database\NoRecordException;
 use Viloveul\Database\Contracts\Model as IModel;
 use Viloveul\Database\Contracts\Query as IQuery;
 use Viloveul\Database\Contracts\Condition as ICondition;
@@ -71,6 +72,17 @@ abstract class Query implements IQuery
             $model->save();
         }
         return $model;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function findOrFail()
+    {
+        if ($model = $this->find()) {
+            return $model;
+        }
+        throw new NoRecordException("No Record");
     }
 
     /**
